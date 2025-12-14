@@ -1,0 +1,22 @@
+1. 파일 구조 확인 및 생성
+VS Code에서 lib 폴더 내에 다음과 같이 파일을 만들어주세요.
+lib/models/store_model.dart (이전에 정의한 가게 모델)
+lib/data/dummy_data.dart (이전에 정의한 가게 더미 데이터)
+lib/screens/my_screen.dart (이번에 만들 My 화면)
+lib/widgets/bottom_nav_bar.dart (추가로 구현할 하단 탭 바)
+참고: My 화면에서 "최근 본" 기능은 실제 서버나 영구 저장소 없이 앱이 실행되는 동안만 데이터를 관리하는 방식으로 구현하겠습니다. (개발 난이도 최소화)
+
+2. 필요한 코드 (복사/붙여넣기)
+A. 데이터 모델 정의 (lib/models/store_model.dart)
+
+B. 더미 데이터 정의 (lib/data/dummy_data.dart)
+실제 가게 정보와 "최근 본" 목록에 사용할 더미 데이터를 정의합니다.
+
+C. My 화면 코드 (lib/screens/my_screen.dart)
+이 코드를 복사해서 my_screen.dart 파일에 붙여넣으세요.
+
+D. 하단 내비게이션 바 (lib/widgets/bottom_nav_bar.dart)
+My 화면을 포함하여 다른 화면으로 이동할 수 있는 하단 탭 바를 미리 구현해 둡니다.
+
+E. main.dart 수정
+앱이 시작될 때 위에서 만든 MainScreen을 로드하도록 main.dart 파일을 수정합니다.
