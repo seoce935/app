@@ -1,0 +1,198 @@
+1. 이미지 파일 준비 및 등록
+Flutter 앱에서 이미지를 사용하려면 먼저 프로젝트에 파일을 넣고 pubspec.yaml에 등록해야 합니다.
+1단계 : 이미지 파일 준비
+프로젝트 루트 폴더(fooday_v2/ 같은)에 **assets**라는 새 폴더를 만듭니다.
+assets 폴더 안에 **images**라는 새 폴더를 만듭니다. (즉, assets/images 경로)
+가챠 기계 이미지와 메뉴 쪽지 이미지 두 가지 이미지를 준비해서 이 assets/images 폴더에 넣습니다. (예: gacha_machine.png, menu_paper.png)
+💡 참고: 제가 코드를 작성할 때는 gacha_machine.png와 menu_paper.png라는 파일 이름으로 가정하겠습니다.
+
+2단계 : pubspec.yaml에 이미지 등록
+VS Code에서 프로젝트 루트에 있는 pubspec.yaml 파일을 엽니다. flutter: 섹션을 찾아서 assets: 주석을 해제하고, 이미지 폴더 경로를 추가합니다.
+
+flutter:
+  uses-material-design: true
+  
+  # 아래 assets: 부분을 찾아서 수정하거나 추가합니다.
+  assets:
+    - assets/images/  # 이 줄을 추가하면 assets/images 폴더 전체를 사용할 수 있게 됩니다.
+
+2. 필요한 코드 (복사/붙여넣기)
+A. 랜덤 메뉴 데이터 (lib/data/dummy_data.dart 수정)
+기존 dummy_data.dart 파일에 메뉴 리스트를 추가합니다.
+
+import '../models/store_model.dart';
+
+// ... (기존 allStores 데이터 유지)
+
+// 랜덤 뽑기에 사용할 메뉴 리스트
+final List<String> randomMenus = [
+  '라멘', '돈까스', '김밥', '국밥', '떡볶이', '제육덮밥', '햄버거',
+];
+
+// ... (기존 recentlyViewed 데이터 유지)
+
+
+B. 랜덤픽 화면 코드 (lib/screens/random_pick_screen.dart 파일 생성)
+lib/screens 폴더에 random_pick_screen.dart 파일을 새로 만들고 아래 코드를 복사해서 붙여넣으세요.
+
+import 'package:flutter/material.dart';
+import 'dart:math'; // 랜덤 기능을 위해 필요
+import '../data/dummy_data.dart'; // 메뉴 리스트를 가져오기 위해 필요
+
+class RandomPickScreen extends StatefulWidget {
+  const RandomPickScreen({super.key});
+
+  @override
+  State<RandomPickScreen> createState() => _RandomPickScreenState();
+}
+
+class _RandomPickScreenState extends State<RandomPickScreen> {
+  String? _pickedMenu; // 뽑힌 메뉴를 저장하는 변수 (초기값: null)
+  final Random _random = Random(); // 랜덤 객체 생성
+
+  // 메뉴를 랜덤으로 선택하는 함수
+  void _pickRandomMenu() {
+    setState(() {
+      // dummy_data.dart에 정의된 randomMenus 리스트에서 랜덤으로 하나 선택
+      final int randomIndex = _random.nextInt(randomMenus.length);
+      _pickedMenu = randomMenus[randomIndex];
+    });
+  }
+
+  // 다시 뽑기 버튼을 위한 함수 (뽑힌 메뉴 초기화)
+  void _resetPick() {
+    setState(() {
+      _pickedMenu = null;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('랜덤픽', style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              // --- 가챠 기계 이미지 ---
+              Image.asset(
+                'assets/images/gacha_machine.png', // 1단계에서 준비한 파일 이름으로 변경하세요
+                height: 300,
+              ),
+              const SizedBox(height: 30),
+
+              // --- 결과 표시 영역 (메뉴 쪽지) ---
+              if (_pickedMenu != null) 
+                _buildMenuResult(_pickedMenu!)
+              else 
+                const Text(
+                  '랜덤 메뉴 뽑기를 눌러 점심을 골라보세요!',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              
+              const SizedBox(height: 50),
+
+              // --- 버튼 영역 ---
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: (_pickedMenu == null) ? _pickRandomMenu : _resetPick,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: (_pickedMenu == null) ? Colors.orange : Colors.redAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 5,
+                  ),
+                  child: Text(
+                    (_pickedMenu == null) ? '랜덤 메뉴 뽑기' : '다시 뽑기',
+                    style: const TextStyle(
+                      fontSize: 18, 
+                      fontWeight: FontWeight.bold, 
+                      color: Colors.white
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 뽑힌 메뉴 결과를 보여주는 위젯
+  Widget _buildMenuResult(String menu) {
+    return Container(
+      width: 250,
+      height: 100,
+      decoration: const BoxDecoration(
+        // 메뉴 쪽지 이미지로 배경을 설정합니다.
+        image: DecorationImage(
+          image: AssetImage('assets/images/menu_paper.png'), // 1단계에서 준비한 파일 이름으로 변경하세요
+          fit: BoxFit.contain,
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              '오늘의 메뉴는?',
+              style: TextStyle(fontSize: 14, color: Colors.black54),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              menu,
+              style: const TextStyle(
+                fontSize: 24, 
+                fontWeight: FontWeight.bold, 
+                color: Colors.red
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+C. bottom_nav_bar.dart에 화면 연결
+이전에 사용했던 lib/widgets/bottom_nav_bar.dart 파일을 열고, _screens 리스트의 3번 인덱스에 새로 만든 RandomPickScreen을 연결해 줍니다.
+
+// ... 기존 코드 유지
+
+// import '../screens/home_screen.dart'; // 이미 홈 화면 파일이 생성되었다면 유지
+
+// 기존 TempScreen 정의는 유지하거나 삭제해도 됩니다.
+
+// 새로 추가:
+import '../screens/random_pick_screen.dart'; 
+
+// ...
+
+class _MainScreenState extends State<MainScreen> {
+  int _currentIndex = 0; // 시작 화면을 홈으로 변경 (로그인 화면 제거)
+
+  final List<Widget> _screens = [
+    const HomeScreen(), // 0. HomeScreen (이전에 TempScreen이었던 것)
+    const TempScreen("저장"), // 1. 저장
+    const TempScreen("지도"), // 2. 지도
+    const RandomPickScreen(), // 3. 랜덤픽 (새로 만든 화면으로 교체)
+    const MyScreen(), // 4. 마이
+  ];
+  
+  // ... 나머지 코드는 그대로 유지
+}
+
+
